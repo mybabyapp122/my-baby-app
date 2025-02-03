@@ -21,6 +21,7 @@ class PaymentController extends Controller {
     //Should be accessible without login
     public function actionVerifyPayment()
     {
+
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         // Retrieve and decode the JSON payload from POST data
