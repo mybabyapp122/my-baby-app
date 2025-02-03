@@ -1,0 +1,184 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.container {
+    width: 90%; /* Adjust width for smaller screens */
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header {
+    border-bottom: 2px solid #333;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.logo {
+    flex: 0 0 auto;
+    margin-right: 20px;
+    margin-bottom: 10px; /* Add space below logo for small screens */
+}
+
+.logo img {
+    max-height: 60px;
+    width: auto;
+}
+
+.header-content {
+    flex: 1;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.company-info {
+    margin-top: 10px;
+}
+
+.company-info h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.company-info address {
+    font-style: normal;
+}
+
+.company-info a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.invoice-details .invoice-to {
+    width: 45%;
+}
+
+.invoice-details .invoice-to,
+.invoice-details .invoice-info {
+    width: 100%; /* Make sections full-width on small screens */
+    margin-bottom: 20px;
+}
+
+.invoice-details .invoice-info {
+    text-align: left; /* Align text to the left on small screens */
+}
+
+.items table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.items table th,
+.items table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: right;
+}
+
+.items table th {
+    background-color: #f4f4f4;
+}
+
+.items table td:first-child {
+    text-align: left;
+}
+
+.summary {
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+.summary h3 {
+    margin-top: 0;
+    text-align: right;
+}
+
+.summary-details {
+    text-align: right;
+}
+
+.summary-details p {
+    margin: 5px 0;
+}
+
+footer {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        width: 95%; /* Increase width for small screens */
+        padding: 10px;
+    }
+
+    header {
+        flex-direction: column; /* Stack logo and header content vertically */
+        align-items: flex-start; /* Align items to start */
+    }
+
+    .logo {
+        margin-right: 0;
+        margin-bottom: 10px; /* Space below the logo */
+    }
+
+    .invoice-details {
+        flex-direction: column; /* Stack invoice details vertically */
+    }
+
+    .invoice-details .invoice-to,
+    .invoice-details .invoice-info {
+        width: 100%; /* Full width for both sections */
+        text-align: left; /* Align text to the left */
+    }
+
+    .items table th,
+    .items table td {
+        font-size: 14px; /* Adjust font size for smaller screens */
+    }
+
+    .summary {
+        text-align: left; /* Align text to the left for small screens */
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 20px; /* Adjust font size for very small screens */
+    }
+
+    .company-info h2 {
+        font-size: 16px; /* Adjust font size for very small screens */
+    }
+
+    .items table th,
+    .items table td {
+        font-size: 12px; /* Further adjust font size for very small screens */
+    }
+
+    footer {
+        font-size: 12px; /* Smaller font size for very small screens */
+    }
+}

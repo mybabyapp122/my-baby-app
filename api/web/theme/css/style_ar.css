@@ -1,0 +1,44 @@
+body {
+    direction: rtl;
+}
+
+header {
+    text-align: right;
+}
+
+.logo {
+    margin-left: 20px; /* Space between logo and header content */
+}
+
+.invoice-details .invoice-info {
+    text-align: right;
+}
+.items table th,
+.items table td {
+    text-align: left;
+}
+
+.items table td:first-child {
+    text-align: right;
+}
+
+.summary {
+    text-align: left; /* Align text to the right */
+}
+
+.summary h3 {
+    text-align: left; /* Align the heading to the right */
+}
+
+.summary-details {
+    text-align: left; /* Ensure all details are aligned to the right */
+}
+
+@media (max-width: 768px) {
+
+    .invoice-details .invoice-to,
+    .invoice-details .invoice-info {
+        text-align: right; /* Align text to the left */
+    }
+
+}
