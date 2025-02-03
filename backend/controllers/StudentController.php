@@ -213,6 +213,7 @@ class StudentController extends BaseController
 
     public function actionUpdateStudentFinance()
     {
+
         Yii::$app->response->format = Response::FORMAT_JSON;
         $id = $_REQUEST['student_id'];
         $student = Student::findOne($id);
@@ -232,6 +233,7 @@ class StudentController extends BaseController
 
             $metadata = [
                 'student_id' => $_REQUEST['student_id'],
+                'pricing_model' => $_REQUEST['pricing_model'],
                 'per_hour_rate' => $_REQUEST['per_hour_rate'],
                 'total_hours' => $_REQUEST['total_hours'],
                 'total_amount' => $_REQUEST['total_amount'],

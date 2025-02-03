@@ -357,7 +357,7 @@ class Sale extends \yii\db\ActiveRecord
         return $cycles;
     }
 
-    public static function processBillingCycles($metadata)
+    public static function processBillingCyclesold($metadata)
     {
         $student_id = $metadata['student_id'] ?? 0;
         $student = Student::findOne($student_id);
@@ -408,6 +408,135 @@ class Sale extends \yii\db\ActiveRecord
                 ];
 
                 // Create the new sale
+                self::newSale(
+                    'school',
+                    Yii::$app->user->id,
+                    'parent',
+                    $student->parent_id,
+                    $items,
+                    'fee',
+                    $additionalMetadata
+                );
+            }
+        }
+
+        return CustomWidgets::returnSuccess([], 'All Invoices Generated');
+    }
+
+    public static function processBillingCycles($metadata)
+    {
+        $student_id = $metadata['student_id'] ?? 0;
+        $student = Student::findOne($student_id);
+
+        if (!$student) {
+            throw new \Exception("Student with ID {$metadata['student_id']} not found.");
+        }
+
+        $pricingModel = $metadata['pricing_model'] ?? 'hourly'; // Get pricing model
+        $rate = $metadata['per_hour_rate'] ?? 0;
+        $totalUnits = $metadata['total_hours'] ?? 0; // Could be hours, months, semesters, or years
+        $start_date = new \DateTime($metadata['starting_date']);
+        $end_date = new \DateTime($metadata['ending_date']);
+
+        // Define billing cycles based on the pricing model
+        $billingCycles = [];
+
+        if ($pricingModel === 'monthly') {
+            for ($i = 0; $i < $totalUnits; $i++) {
+                $cycleStart = clone $start_date;
+                $cycleStart->modify("+$i months");
+                $cycleEnd = (clone $cycleStart)->modify('last day of this month');
+
+                // Ensure cycle does not exceed ending date
+                if ($cycleEnd > $end_date) {
+                    $cycleEnd = clone $end_date;
+                }
+
+                $billingCycles[] = [
+                    'start_date' => $cycleStart->format('Y-m-d'),
+                    'end_date' => $cycleEnd->format('Y-m-d'),
+                ];
+            }
+        } elseif ($pricingModel === 'semester') {
+            for ($i = 0; $i < $totalUnits; $i++) {
+                $cycleStart = clone $start_date;
+                $cycleStart->modify("+".($i * 6)." months"); // Each semester is 6 months
+                $cycleEnd = (clone $cycleStart)->modify('+5 months')->modify('last day of this month');
+
+                // Ensure cycle does not exceed ending date
+                if ($cycleEnd > $end_date) {
+                    $cycleEnd = clone $end_date;
+                }
+
+                $billingCycles[] = [
+                    'start_date' => $cycleStart->format('Y-m-d'),
+                    'end_date' => $cycleEnd->format('Y-m-d'),
+                ];
+            }
+        } elseif ($pricingModel === 'yearly') {
+            for ($i = 0; $i < $totalUnits; $i++) {
+                $cycleStart = clone $start_date;
+                $cycleStart->modify("+$i years");
+                $cycleEnd = (clone $cycleStart)->modify('+11 months')->modify('last day of this month');
+
+                // Ensure cycle does not exceed ending date
+                if ($cycleEnd > $end_date) {
+                    $cycleEnd = clone $end_date;
+                }
+
+                $billingCycles[] = [
+                    'start_date' => $cycleStart->format('Y-m-d'),
+                    'end_date' => $cycleEnd->format('Y-m-d'),
+                ];
+            }
+        } else {
+            // Default to hourly logic if no valid model is found
+            $billingCycles = self::getBillingCycles($metadata['starting_date'], $metadata['ending_date']);
+        }
+
+        if (empty($billingCycles)) {
+            return CustomWidgets::returnFail('Failed to generate billing cycles');
+        }
+
+        foreach ($billingCycles as $cycle) {
+            if (isset($cycle['start_date'], $cycle['end_date'])) {
+                $cycleStart = new \DateTime($cycle['start_date']);
+                $cycleEnd = new \DateTime($cycle['end_date']);
+
+                // Calculate invoice total based on pricing model
+                $invoiceTotal = 0;
+                if ($pricingModel === 'hourly') {
+                    $schedule = Student::scheduleDetails(
+                        $student->id,
+                        $cycleStart->format('Y-m-d'),
+                        $cycleEnd->format('Y-m-d')
+                    );
+                    $perHourRate = $metadata['per_hour_rate'] ?? 0;
+                    $invoiceTotal = $schedule['hours'] * $perHourRate;
+                } else {
+                    $invoiceTotal = $metadata['total_amount'] / count($billingCycles); // Divide total amount equally for monthly, semester, yearly
+                }
+
+                // Prepare invoice items
+                $items = [
+                    [
+                        'title' => ucfirst($pricingModel) . ' Fee - ' . $cycleStart->format('M d, Y') . ' to ' . $cycleEnd->format('M d, Y'),
+                        'amount' => $invoiceTotal,
+                        'quantity' => 1,
+                    ],
+                ];
+
+                $additionalMetadata = [
+                    'student_id' => $student->id,
+                    'pricing_model' => $metadata['pricing_model'],
+                    'starting_date' => $metadata['starting_date'],
+                    'ending_date' => $metadata['ending_date'],
+                    'invoice_total' => $invoiceTotal,
+                    'invoice_start' => $cycleStart->format('Y-m-d'),
+                    'invoice_end' => $cycleEnd->format('Y-m-d'),
+                ];
+
+                // Create invoice record
                 self::newSale(
                     'school',
                     Yii::$app->user->id,

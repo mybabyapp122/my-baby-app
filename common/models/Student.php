@@ -225,6 +225,70 @@ class Student extends \yii\db\ActiveRecord
         ] + $this->toBasicJson();
     }
 
+//    public static function scheduleDetails($studentId, $start_date = null, $end_date = null)
+//    {
+//        if (!empty($start_date)) $start_date = new \DateTime($start_date);
+//        if (!empty($end_date)) $end_date = new \DateTime($end_date);
+//
+//        $student = Student::findOne($studentId);
+//        // Fetch all records for the given student ID
+//        $schedules = StudentSchedule::find()
+//            ->where(['student_id' => $studentId])
+//            ->andWhere(['grade_id' => $student->grade_id])
+//            ->all();
+//
+//        $totalHours = 0;
+//        $uniqueDays = [];
+//        $startingDate = null;
+//        $endingDate = null;
+//
+//        if (!empty($schedules)) {
+//            foreach ($schedules as $schedule) {
+//                // Convert start and end times to DateTime objects
+//                $startTime = new \DateTime($schedule->start_time);
+//                $endTime = new \DateTime($schedule->end_time);
+//
+//                // Calculate the daily duration in hours
+//                $interval = $startTime->diff($endTime);
+//                $hoursPerDay = $interval->h + ($interval->i / 60);
+//
+//                // Calculate the number of days the schedule spans
+//                $startDate = $start_date ?? new \DateTime($schedule->start_date);
+//                $endDate = $end_date ?? new \DateTime($schedule->end_date);
+//
+//                // Update starting and ending dates
+//                if (is_null($startingDate) || $startDate < $startingDate) {
+//                    $startingDate = $startDate;
+//                }
+//                if (is_null($endingDate) || $endDate > $endingDate) {
+//                    $endingDate = $endDate;
+//                }
+//
+//                // Collect unique days between start_date and end_date
+//                $period = new \DatePeriod(
+//                    $startDate,
+//                    new \DateInterval('P1D'),
+//                    (clone $endDate)->modify('+1 day') // Include the end date
+//                );
+//
+//                foreach ($period as $day) {
+//                    $uniqueDays[$day->format('Y-m-d')] = true;
+//                }
+//
+//                // Accumulate total hours
+//                $daysDifference = $startDate->diff($endDate)->days + 1;
+//                $totalHours += $hoursPerDay * $daysDifference;
+//            }
+//        }
+//
+//        return [
+//            'hours' => $totalHours,
+//            'days' => count($uniqueDays),
+//            'starting_date' => $startingDate ? $startingDate->format('Y-m-d') : null,
+//            'ending_date' => $endingDate ? $endingDate->format('Y-m-d') : null,
+//        ];
+//    }
+
     public static function scheduleDetails($studentId, $start_date = null, $end_date = null)
     {
         if (!empty($start_date)) $start_date = new \DateTime($start_date);
@@ -241,6 +305,9 @@ class Student extends \yii\db\ActiveRecord
         $uniqueDays = [];
         $startingDate = null;
         $endingDate = null;
+        $totalMonths = 0;
+        $totalSemesters = 0;
+        $totalYears = 0;
 
         if (!empty($schedules)) {
             foreach ($schedules as $schedule) {
@@ -279,6 +346,16 @@ class Student extends \yii\db\ActiveRecord
                 $daysDifference = $startDate->diff($endDate)->days + 1;
                 $totalHours += $hoursPerDay * $daysDifference;
             }
+
+            // Calculate total months, semesters, and years
+            // based on the overall period
+            $interval = $startingDate->diff($endingDate);
+            $totalMonths = $interval->m + ($interval->y * 12);
+            $totalSemesters = ceil($totalMonths / 6);
+
+            // Calculate total years with decimal precision
+            $totalDays = $interval->days; // Total days between start and end dates
+            $totalYears = $totalDays / 365.25; // 365.25 accounts for leap years
         }
 
         return [
@@ -286,10 +363,11 @@ class Student extends \yii\db\ActiveRecord
             'days' => count($uniqueDays),
             'starting_date' => $startingDate ? $startingDate->format('Y-m-d') : null,
             'ending_date' => $endingDate ? $endingDate->format('Y-m-d') : null,
+            'months' => $totalMonths,
+            'semesters' => $totalSemesters,
+            'years' => round($totalYears, 2), // Round to 2 decimal places
         ];
     }
-
-
     public function loadStudentSchedules($selectedGrades)
     {
         $this->studentSchedules = [];

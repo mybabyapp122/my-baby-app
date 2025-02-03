@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
@@ -30,29 +31,44 @@ Html::hiddenInput('student_id', $student->id);
                         <div class="col-lg-12 mb-3">
                             <label class="form-label"><?= Yii::t('app', 'Student Schedule Details') ?></label>
                             <div class="bg-light p-2 rounded border">
-                                <?= Yii::t('app', 'Days') . ' : '  ?>
+                                <?= Yii::t('app', 'Days') . ' : ' ?>
                                 <strong><?= Html::encode($schedule['days']) ?></strong>
 
                                 <p></p>
-                                <?= Yii::t('app', 'Hours') . ' : '  ?>
+                                <?= Yii::t('app', 'Hours') . ' : ' ?>
                                 <strong><?= Html::encode($schedule['hours']) ?></strong>
 
                                 <p></p>
-                                <?= Yii::t('app', 'Starting From') . ' : '  ?>
-                                <strong id="starting-date"><?= Html::encode($schedule['starting_date'])?></strong>
+                                <?= Yii::t('app', 'Starting From') . ' : ' ?>
+                                <strong id="starting-date"><?= Html::encode($schedule['starting_date']) ?></strong>
 
                                 <p></p>
-                                <?= Yii::t('app', 'Ending on') . ' : '  ?>
-                                <strong id="ending-date"><?= Html::encode($schedule['ending_date'])?></strong>
+                                <?= Yii::t('app', 'Ending on') . ' : ' ?>
+                                <strong id="ending-date"><?= Html::encode($schedule['ending_date']) ?></strong>
                             </div>
-
+                        </div>
+                        <!-- Pricing Model Dropdown -->
+                        <div class="col-lg-12 mb-3">
+                            <?= Html::label(Yii::t('app', 'Pricing Model'), 'pricing-model', ['class' => 'form-label']) ?>
+                            <div class="input-group">
+                                <?= Html::dropDownList('pricing_model', '', [
+                                    '' => Yii::t('app', 'Select Pricing Model'),
+                                    'hourly' => Yii::t('app', 'Per Hour'),
+                                    'monthly' => Yii::t('app', 'Per Month'),
+                                    'semester' => Yii::t('app', 'Per Semester'),
+                                    'yearly' => Yii::t('app', 'Per Year'),
+                                ], [
+                                    'class' => 'form-select',
+                                    'id' => 'pricing-model',
+                                ]) ?>
+                            </div>
                         </div>
 
                         <!-- Editable Rate and Hours with Total Calculation -->
-                        <div class="col-lg-12 mb-3">
+                        <div class="col-lg-12 mb-3 hourly_div" style="display: none">
                             <div class="d-flex align-items-center justify-content-start">
                                 <!-- Per Hour Rate -->
-                                <div class="col-lg-3 me-2">
+                                <div class="col-lg-4 me-2">
                                     <?= Html::label(Yii::t('app', 'Per Hour Rate'), 'per-hour-rate', ['class' => 'form-label']) ?>
                                     <div class="input-group">
                                         <?= Html::input('number', 'per_hour_rate', $student->grade->per_hour_rate, [
@@ -61,7 +77,6 @@ Html::hiddenInput('student_id', $student->id);
                                             'min' => '0',
                                             'step' => '1',
                                             'placeholder' => Yii::t('app', 'Enter per hour rate'),
-//                                            'style' => 'width: 70px;',
                                         ]) ?>
                                         <div class="input-group-text bg-light text-muted">SAR</div>
                                     </div>
@@ -83,9 +98,7 @@ Html::hiddenInput('student_id', $student->id);
                                             'step' => '1',
                                             'readonly' => true,
                                             'disabled' => true,
-//                                            'style' => 'width: 70px;',
                                         ]) ?>
-<!--                                        <div class="input-group-text bg-light text-muted">hours</div>-->
                                     </div>
                                 </div>
 
@@ -99,102 +112,343 @@ Html::hiddenInput('student_id', $student->id);
                                     <?= Html::label(Yii::t('app', 'Total Amount'), 'total-amount', ['class' => 'form-label']) ?>
                                     <div class="input-group">
                                         <?= Html::input('text', 'total_amount', null, [
-                                            'class' => 'form-control',
+                                            'class' => 'form-control total_amount_class',
                                             'id' => 'total-amount',
                                             'readonly' => true,
-//                                            'style' => 'width: 80px;',
                                             'placeholder' => '0.00'
                                         ]) ?>
-<!--                                        <span class="input-group-text bg-light text-muted">SAR</span>-->
                                         <div class="input-group-text bg-light text-muted"><?= Yii::t('app', 'SAR') ?></div>
                                     </div>
                                 </div>
-
-
                             </div>
                         </div>
-                        <!-- Optional Preferred Time Slots (Checkbox List) -->
-                        <?php
-                        //        $form->field($model, 'time_slots')->checkboxList($timeSlots);
-                        ?>
+
+                        <div class="col-lg-12 mb-3 monthly_div" style="display: none">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <!-- Per Month Rate -->
+                                <div class="col-lg-4 me-2">
+                                    <?= Html::label(Yii::t('app', 'Per Month Rate'), 'per-month-rate', ['class' => 'form-label']) ?>
+                                    <div class="input-group">
+                                        <?= Html::input('number', 'per_month_rate', $student->grade->per_month_rate, [
+                                            'class' => 'form-control',
+                                            'id' => 'per-month-rate',
+                                            'min' => '0',
+                                            'step' => '1',
+                                            'placeholder' => Yii::t('app', 'Enter per month rate'),
+                                        ]) ?>
+                                        <div class="input-group-text bg-light text-muted">SAR</div>
+                                    </div>
+                                </div>
+
+                                <!-- Multiply Symbol -->
+                                <div class="me-2 mt-4">
+                                    <span class="fs-4">×</span>
+                                </div>
+
+                                <!-- Total Hours -->
+                                <div class="col-lg-3 me-2">
+                                    <?= Html::label(Yii::t('app', 'Total Months'), 'total-months', ['class' => 'form-label']) ?>
+                                    <div class="input-group">
+                                        <?= Html::input('number', 'total_months', $schedule['months'], [
+                                            'class' => 'form-control',
+                                            'id' => 'total-months',
+                                            'min' => '0',
+                                            'step' => '1',
+                                            'readonly' => true,
+                                            'disabled' => true,
+                                        ]) ?>
+                                    </div>
+                                </div>
+
+                                <!-- Equals Symbol -->
+                                <div class="me-2 mt-4">
+                                    <span class="fs-4">=</span>
+                                </div>
+
+                                <!-- Total Amount (Read-only) -->
+                                <div class="col-lg-4 me-2">
+                                    <?= Html::label(Yii::t('app', 'Total Amount'), 'total-amount', ['class' => 'form-label']) ?>
+                                    <div class="input-group">
+                                        <?= Html::input('text', 'total_amount', null, [
+                                            'class' => 'form-control total_amount_class',
+                                            'id' => 'total-amount',
+                                            'readonly' => true,
+                                            'placeholder' => '0.00'
+                                        ]) ?>
+                                        <div class="input-group-text bg-light text-muted"><?= Yii::t('app', 'SAR') ?></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 mb-3 semester_div" style="display: none">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <!-- Per Month Rate -->
+                                <div class="col-lg-4 me-2">
+                                    <?= Html::label(Yii::t('app', 'Per Semester Rate'), 'per-semester-rate', ['class' => 'form-label']) ?>
+                                    <div class="input-group">
+                                        <?= Html::input('number', 'per_semester_rate', $student->grade->per_semester_rate, [
+                                            'class' => 'form-control',
+                                            'id' => 'per-semester-rate',
+                                            'min' => '0',
+                                            'step' => '1',
+                                            'placeholder' => Yii::t('app', 'Enter per semester rate'),
+                                        ]) ?>
+                                        <div class="input-group-text bg-light text-muted">SAR</div>
+                                    </div>
+                                </div>
+
+                                <!-- Multiply Symbol -->
+                                <div class="me-2 mt-4">
+                                    <span class="fs-4">×</span>
+                                </div>
+
+                                <!-- Total Hours -->
+                                <div class="col-lg-3 me-2">
+                                    <?= Html::label(Yii::t('app', 'Total Semester'), 'total-semester', ['class' => 'form-label']) ?>
+                                    <div class="input-group">
+                                        <?= Html::input('number', 'total_semester', $schedule['semesters'], [
+                                            'class' => 'form-control',
+                                            'id' => 'total-semester',
+                                            'min' => '0',
+                                            'step' => '1',
+                                            'readonly' => true,
+                                            'disabled' => true,
+                                        ]) ?>
+                                    </div>
+                                </div>
+
+                                <!-- Equals Symbol -->
+                                <div class="me-2 mt-4">
+                                    <span class="fs-4">=</span>
+                                </div>
+
+                                <!-- Total Amount (Read-only) -->
+                                <div class="col-lg-4 me-2">
+                                    <?= Html::label(Yii::t('app', 'Total Amount'), 'total-amount', ['class' => 'form-label']) ?>
+                                    <div class="input-group">
+                                        <?= Html::input('text', 'total_amount', null, [
+                                            'class' => 'form-control total_amount_class',
+                                            'id' => 'total-amount',
+                                            'readonly' => true,
+                                            'placeholder' => '0.00'
+                                        ]) ?>
+                                        <div class="input-group-text bg-light text-muted"><?= Yii::t('app', 'SAR') ?></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 mb-3 year_div" style="display: none">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <!-- Per Month Rate -->
+                                <div class="col-lg-4 me-2">
+                                    <?= Html::label(Yii::t('app', 'Per Year Rate'), 'per-year-rate', ['class' => 'form-label']) ?>
+                                    <div class="input-group">
+                                        <?= Html::input('number', 'per_year_rate', $student->grade->per_year_rate, [
+                                            'class' => 'form-control',
+                                            'id' => 'per-year-rate',
+                                            'min' => '0',
+                                            'step' => '1',
+                                            'placeholder' => Yii::t('app', 'Enter per year rate'),
+                                        ]) ?>
+                                        <div class="input-group-text bg-light text-muted">SAR</div>
+                                    </div>
+                                </div>
+
+                                <!-- Multiply Symbol -->
+                                <div class="me-2 mt-4">
+                                    <span class="fs-4">×</span>
+                                </div>
+
+                                <!-- Total Hours -->
+                                <div class="col-lg-3 me-2">
+                                    <?= Html::label(Yii::t('app', 'Total Year'), 'total-year', ['class' => 'form-label']) ?>
+                                    <div class="input-group">
+                                        <?= Html::input('number', 'total_year', $schedule['years'], [
+                                            'class' => 'form-control',
+                                            'id' => 'total-year',
+                                            'min' => '0',
+                                            'step' => '1',
+                                            'readonly' => true,
+                                            'disabled' => true,
+                                        ]) ?>
+                                    </div>
+                                </div>
+
+                                <!-- Equals Symbol -->
+                                <div class="me-2 mt-4">
+                                    <span class="fs-4">=</span>
+                                </div>
+
+                                <!-- Total Amount (Read-only) -->
+                                <div class="col-lg-4 me-2">
+                                    <?= Html::label(Yii::t('app', 'Total Amount'), 'total-amount', ['class' => 'form-label']) ?>
+                                    <div class="input-group">
+                                        <?= Html::input('text', 'total_amount', null, [
+                                            'class' => 'form-control total_amount_class',
+                                            'id' => 'total-amount',
+                                            'readonly' => true,
+                                            'placeholder' => '0.00'
+                                        ]) ?>
+                                        <div class="input-group-text bg-light text-muted"><?= Yii::t('app', 'SAR') ?></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
 
-                    <!-- Beautiful Note -->
-                    <div class="alert alert-info mt-4 p-3 rounded">
-                        <i class="fa fa-info-circle me-2"></i>
-                        <?= Yii::t('app', 'An invoice will be generated automatically on the 28th of every month. If the schedule starts mid-month, an invoice will be generated from today until the upcoming 28th, followed by subsequent monthly invoices.') ?>
-                    </div>
+                </div>
 
-                    <div class="hstack gap-2 justify-content-end">
-                        <?= Html::button(Yii::t('app', 'Generate Invoice'), ['class' => 'btn btn-primary ', 'id' => 'generate-btn']); ?>
-                        <?= Html::a(Yii::t('app', 'View Invoices'), ['/payment/index'], [
-                            'class' => 'btn btn-primary',
-                            'target' => '_blank',
-                            'rel' => 'noopener noreferrer', // Improves security by preventing access to the referring window
-                        ]); ?>
-                    </div>
+                <!-- Beautiful Note -->
+                <div class="alert alert-info mt-4 p-3 rounded">
+                    <i class="fa fa-info-circle me-2"></i>
+                    <?= Yii::t('app', 'An invoice will be generated automatically on the 28th of every month. If the schedule starts mid-month, an invoice will be generated from today until the upcoming 28th, followed by subsequent monthly invoices.') ?>
+                </div>
+
+                <div class="hstack gap-2 justify-content-end">
+                    <?= Html::button(Yii::t('app', 'Generate Invoice'), ['class' => 'btn btn-primary', 'id' => 'generate-btn']); ?>
+                    <?= Html::a(Yii::t('app', 'View Invoices'), ['/payment/index'], [
+                        'class' => 'btn btn-primary',
+                        'target' => '_blank',
+                        'rel' => 'noopener noreferrer',
+                    ]); ?>
                 </div>
             </div>
         </div>
-        <!--end card-->
     </div>
+</div>
 </div>
 <?php ActiveForm::end(); ?>
 
-
-
 <?php
 $lang = Yii::$app->language;
-$user_lang             = Yii::$app->language;
-$crfToken             = Yii::$app->request->csrfToken;
+$user_lang = Yii::$app->language;
+$crfToken = Yii::$app->request->csrfToken;
 $script = <<< JS
+    function togglePricingFields() {
+        const pricingModel = document.getElementById("pricing-model").value;
     
+        document.querySelector('.hourly_div').style.display = 'none';
+        document.querySelector('.monthly_div').style.display = 'none';
+        document.querySelector('.semester_div').style.display = 'none';
+        document.querySelector('.year_div').style.display = 'none';
+        if (pricingModel === 'hourly') {
+            document.querySelector('.hourly_div').style.display = 'block';
+        } else if (pricingModel === 'monthly') {
+            document.querySelector('.monthly_div').style.display = 'block';
+        } else if (pricingModel === 'semester') {
+            document.querySelector('.semester_div').style.display = 'block';
+        } else if (pricingModel === 'yearly') {
+            document.querySelector('.year_div').style.display = 'block';
+        }
+    }
+    document.getElementById("pricing-model").addEventListener("change", function() {
+        togglePricingFields();
+        calculateTotal(); 
+    });
     
-    // Function to calculate and update the total amount
+    togglePricingFields();
+    
     function calculateTotal() {
-        // Clear values (optional, for example purposes)
-        $('#total-amount').val(''); // Clear total amount initially
+        const pricingModel = document.getElementById("pricing-model").value;
+        let rate, totalAmount, totalTime;
     
-        // Get values
-        const rate = parseFloat($('#per-hour-rate').val()) || 0;
-        const hours = parseFloat($('#total-hours').val()) || 0;
+        if (pricingModel === 'hourly') {
+            const hourRate = document.getElementById("per-hour-rate").value;
+            const totalHours = document.getElementById("total-hours").value;
     
-        // Perform the calculation
-        const total = rate * hours;
+            rate = parseFloat(hourRate);
+            totalTime = parseFloat(totalHours);
     
-        // Update the total amount field
-        $('#total-amount').val(total.toFixed(2));
+            if (isNaN(rate) || isNaN(totalTime)) {
+                return;
+            }
+    
+            totalAmount = rate * totalTime;
+        } else if (pricingModel === 'monthly') {
+            const monthRate = document.getElementById("per-month-rate").value;
+            const totalMonths = document.getElementById("total-months").value;
+            rate = parseFloat(monthRate);
+            totalTime = parseFloat(totalMonths);
+    
+            if (isNaN(rate) || isNaN(totalTime)) {
+                return;
+            }
+    
+            totalAmount = rate * totalTime;
+        }
+        else if (pricingModel === 'semester') {
+            const semesterRate = document.getElementById("per-semester-rate").value;
+            const totalSemester = document.getElementById("total-semester").value;
+            rate = parseFloat(semesterRate);
+            totalTime = parseFloat(totalSemester);
+    
+            if (isNaN(rate) || isNaN(totalTime)) {
+                return;
+            }
+    
+            totalAmount = rate * totalTime;
+        }
+        else if (pricingModel === 'yearly') {
+            const yearRate = document.getElementById("per-year-rate").value;
+            const totalYear = document.getElementById("total-year").value;
+            rate = parseFloat(yearRate);
+            totalTime = parseFloat(totalYear);
+    
+            if (isNaN(rate) || isNaN(totalTime)) {
+                return;
+            }
+    
+            totalAmount = rate * totalTime;
+        }
+        console.log('totalAmount' ,totalAmount);
+    
+        $('.total_amount_class').val(totalAmount.toFixed(2));
+        // document.getElementsByClassName("total_amount_class").value = totalAmount;
     }
     
-    // Attach events to inputs and trigger calculation on load
-    $(document).ready(function () {
-        // Initialize total calculation on page load
-        calculateTotal();
+    document.getElementById("per-hour-rate").addEventListener("input", calculateTotal);
+    document.getElementById("per-month-rate").addEventListener("input", calculateTotal);
+    document.getElementById("per-semester-rate").addEventListener("input", calculateTotal);
+    document.getElementById("per-year-rate").addEventListener("input", calculateTotal);
     
-        // Attach event listeners to inputs
-        $('#per-hour-rate, #total-hours').on('input', function () {
-            calculateTotal();
-        });
-    });
-
-
-
     $('#generate-btn').on('click', function(event) {
         event.preventDefault(); // Prevent the default link action
-        
+        var pricingModel = $('#pricing-model').val();
         // Get form and specific input values
         var form = $(this).closest('form');
-        var perHourRate = $('#per-hour-rate').val(); // Extract per hour rate
-        var totalHours = $('#total-hours').val();   // Extract total hours
-        var totalAmount = perHourRate * totalHours; // Calculate total amount
+        var Rate, total, totalAmount;
+
+    // Get values based on the pricing model
+    if (pricingModel === 'hourly') {
+        Rate = $('#per-hour-rate').val(); 
+        total = $('#total-hours').val();  
+        totalAmount = Rate * total; // Calculate total amount for hourly
+    } else if (pricingModel === 'monthly') {
+        Rate = $('#per-month-rate').val(); // Ensure this ID exists in your HTML
+        total = $('#total-months').val(); 
+        totalAmount = Rate * total; // Calculate total amount for monthly
+    } else if (pricingModel === 'semester') {
+        Rate = $('#per-semester-rate').val();
+        total = $('#total-semester').val();
+        totalAmount = Rate * total; // Calculate total amount for semester
+    } else if (pricingModel === 'yearly') {
+        Rate = $('#per-year-rate').val();
+        total = $('#total-year').val();
+        totalAmount = Rate * total; // Calculate total amount for yearly
+    }
         var startDate = $('#starting-date').text();   // Extract total hours
         var endDate = $('#ending-date').text();   // Extract total hours
     
         // Prepare data for server
         var data = {
             student_id: `$student->id`,
-            per_hour_rate: perHourRate,
-            total_hours: totalHours,
+            pricing_model: pricingModel,
+            per_hour_rate: Rate,
+            total_hours: total,
             total_amount: totalAmount,
             starting_date: startDate,
             ending_date: endDate
@@ -233,8 +487,8 @@ $script = <<< JS
             }
         });
     });
+    JS;
 
-    
-JS;
-$this->registerJs($script, \yii\web\View::POS_END);
+$this->registerJs($script, yii\web\View::POS_END);
+
 ?>

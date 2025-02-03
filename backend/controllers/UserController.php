@@ -80,7 +80,6 @@ class UserController extends BaseController
         }
 
     }
-
     public function actionLoginByAccessToken()
     {
         if (Yii::$app->user->can('admin')) {
